@@ -32,11 +32,21 @@ calificaciones.pop("Matematicas", 9.0)
 print(calificaciones)
 #9.Comprueba si la clave “BD” existe o no e imprime un mensaje
 
+if "BD" in calificaciones:
+    print("La clave 'BD' existe.")
 
+else:
+    print("La clave 'BD' no existe.")
 #10.Crea una copia del diccionario
-
+calificaciones_copia = calificaciones.copy()
 
 #11.Imprime las claves del diccionario copia
-
+print("Claves del diccionario copia:")
+for clave in calificaciones_copia:
+    print(clave)
 
 #12.Imprime los valores del diccionario copia
+print("Valores del diccionario copia:")
+for valor in calificaciones_copia.values():
+    print(valor)
+    
