@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solicitud de facturación | StepStyle</title><link rel="stylesheet" href="css/styles.css"></head>
+<body><div id="siteHeader"></div><main class="invoice-page"><div class="shell invoice-wrap">
+<p class="kicker">STEPSTYLE · FACTURACIÓN</p><h1>Solicitud de facturación electrónica</h1>
+<p>Completa los datos para generar una solicitud de facturación.</p>
+
+<form id="invoiceForm" class="invoice-form">
+<label>Folio de pedido de prueba<input name="folio" required maxlength="50" placeholder="Ej. STEP-001"></label>
+<label>Nombre o razón social<input name="razon" required maxlength="120"></label>
+<label>RFC<input name="rfc" required maxlength="13" minlength="12" placeholder="Ej. XAXX010101000"></label>
+<label>Correo electrónico<input name="correo" type="email" required placeholder="ejemplo@example.com"></label>
+<label>Concepto o aclaración (opcional)<textarea name="detalle" maxlength="500" rows="4"></textarea></label>
+<button type="submit" class="button button-dark">Descargar solicitud (.txt)</button>
+<p id="invoiceResult" role="status" aria-live="polite"></p>
+</form>
+<a class="button button-outline" href="index.html">Volver a la tienda</a>
+</div></main><div id="siteFooter"></div>
+<script src="js/products.js"></script><script src="js/common.js"></script>
+<script src="js/facturacion.js"></script></body></html>
