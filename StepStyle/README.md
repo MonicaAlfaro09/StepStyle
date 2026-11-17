@@ -1,84 +1,64 @@
-# StepStyle - Tienda virtual FrontEnd
+# StepStyle — Tienda virtual académica
 
-Proyecto académico completo desarrollado con HTML5, CSS3 y JavaScript puro.
+Tienda responsive de calzado con frontend HTML/CSS/JavaScript, backend Node.js/Express, API REST, autenticación por sesión y base SQLite.
 
-## Funciones implementadas
-- Homepage responsive Mobile First.
-- Catálogo con 15 productos y fotografías reales enlazadas desde Nike, adidas y PUMA.
-- Búsqueda predictiva en tiempo real.
-- Filtros combinados por categoría, género y precio.
-- Ordenamiento por popularidad y precio.
-- Ofertas con precio original tachado y porcentaje.
-- Quick View en modal.
-- Página de detalle de producto con talla, color, cantidad, stock, descripción y especificaciones.
-- Wishlist persistente con LocalStorage.
-- Carrito persistente con LocalStorage y control de cantidades/stock.
-- Registro de usuarios con validación y medidor de fortaleza de contraseña.
-- Login simulado contra usuarios guardados en LocalStorage.
-- Sesión persistente y perfil.
-- Checkout protegido: si no existe sesión, redirige al login.
-- Checkout multistep: dirección, método de pago y revisión.
-- Métodos simulados: tarjeta, transferencia y PayPal.
-- Validación visual de formularios.
-- Calculadora de envío por código postal.
-- Cupones PROFE100 y STEP20.
-- IVA 16%, descuento, envío y total en tiempo real.
-- Simulación de pago con spinner de 2 segundos.
-- Confirmación con orden aleatoria tipo ORD84920.
-- Vaciado automático del carrito después de pagar.
+## Funcionalidades
+### Comprador
+- Catálogo inicial de 15 productos, búsqueda, filtros y ordenamiento.
+- Ficha de producto, talla, color y stock.
+- Favoritos y carrito en navegador.
+- Registro e inicio de sesión con backend y hash bcrypt.
+- Checkout de varios pasos, dirección, cálculo de envío, IVA y aceptación de términos.
+- Pago simulado sin capturar tarjeta ni CVV.
+- Pedido persistido en SQLite con folio y partidas históricas.
+- Validación de stock y precios en servidor; descuento transaccional de inventario.
+- Perfil, historial y solicitud de devolución.
 
-## Usuario de prueba
-- Correo: monica@stepstyle.mx
-- Contraseña: StepStyle2026!
+### Administrador
+- Dashboard con conteos y ventas registradas.
+- Alta, edición básica, baja lógica y ajuste de stock.
+- Consulta y actualización de pedidos.
+- Gestión de solicitudes de devolución.
+- Bitácora de operaciones.
+- Endpoints administrativos protegidos por rol.
 
-El usuario se crea automáticamente la primera vez que se abre `login.html`.
+### Seguridad implementada y límites
+- Hash bcrypt para contraseñas.
+- Sesión de servidor con cookie HttpOnly/SameSite.
+- Rate limiting general y de autenticación.
+- Helmet y consultas SQL parametrizadas.
+- Validación de rol en endpoints administrativos.
+- No se reciben datos de tarjeta.
+- Para producción faltan revisión de CSRF, CSP estricta, HTTPS real, gestión de secretos, pruebas de penetración, correo de recuperación, monitoreo y revisión jurídica.
 
-## Cupones
-- `PROFE100`: $100 MXN de descuento.
-- `STEP20`: 20% de descuento.
+## Instalación
+Requisitos: Node.js 20 o superior.
 
-## Cálculo de envío
-- Compra >= $2,500: gratis.
-- CP 88000-88999: $99.
-- CP 64000-64999 y 44000-44999: $129.
-- Otros CP válidos: $169.
+```bash
+npm install
+```
+Copia `.env.example` a `.env`, cambia el secreto de sesión y la contraseña administrativa, después:
 
-## Ejecutar
-Se recomienda abrir la carpeta con VS Code y usar **Live Server** sobre `index.html`.
+```bash
+npm start
+```
+Abre `http://localhost:3000`. Verifica `http://localhost:3000/api/health`.
+
+La base `data/stepstyle.sqlite` y las tablas se crean automáticamente en el primer inicio.
+
+## Cuenta administrativa
+La cuenta inicial se define con `ADMIN_EMAIL` y `ADMIN_PASSWORD` en `.env`. El ejemplo de `.env.example` contiene valores ilustrativos; reemplázalos antes de ejecutar y nunca publiques tu `.env`.
 
 ## Estructura
-- `index.html`: inicio y catálogo.
-- `producto.html`: detalle de producto.
-- `carrito.html`: carrito.
-- `favoritos.html`: wishlist.
-- `registro.html`: alta de usuario.
-- `login.html`: autenticación.
-- `perfil.html`: sesión y pedidos.
-- `checkout.html`: proceso de compra.
-- `confirmacion.html`: Thank You Page.
-- `js/common.js`: almacenamiento, sesión, carrito y layout común.
+- HTML: `index.html`, `producto.html`, `carrito.html`, `checkout.html`, `confirmacion.html`, `registro.html`, `login.html`, `perfil.html`, `favoritos.html`, `admin.html`, `legal.html`, `devoluciones.html`.
+- `js/`: lógica del navegador.
+- `server.js`: backend y API.
+- `database/schema.sql`: esquema relacional.
+- `data_products.json`: catálogo inicial.
+- `documentacion/`: manuales, ficha técnica, API, modelo de datos, matriz legal y pruebas.
 
-## Nota
-Es un proyecto exclusivamente FrontEnd. No procesa pagos reales ni envía información a un servidor. Los datos se almacenan localmente en el navegador mediante LocalStorage.
+## Publicación
+GitHub Pages solo aloja frontend estático y **no ejecuta Express ni SQLite**. Para cumplir la demostración de backend, publicar la aplicación en un hosting Node.js con almacenamiento persistente y HTTPS. No desplegar la base de datos en un hosting efímero.
 
-## Publicar en GitHub Pages
-El proyecto incluye `.github/workflows/pages.yml` para desplegar el sitio estático automáticamente desde la rama `main`.
-
-Después de subir el proyecto a un repositorio público:
-1. Abre **Settings > Pages**.
-2. En **Build and deployment**, selecciona **GitHub Actions**.
-3. Haz un push a `main` o ejecuta manualmente el workflow **Deploy StepStyle to GitHub Pages**.
-
-
-## Versión Galaxy V3
-Esta versión incluye los fondos galácticos proporcionados para el proyecto.
-La carpeta está preparada para reemplazar directamente la carpeta `StepStyle`
-publicada en GitHub Pages.
-
-Estructura principal:
-- `index.html`
-- `css/styles.css`
-- `css/images/space-bg-1.png`
-- `css/images/space-bg-2.png`
-- `js/`
-- páginas de producto, carrito, login, registro y checkout
+## Alcance académico
+StepStyle no procesa pagos reales, no despacha productos, no emite CFDI y utiliza proveedor/datos de contacto simulados. Las políticas legales son borradores informativos y requieren validación antes de cualquier actividad comercial.

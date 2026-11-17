@@ -1,0 +1,25 @@
+{
+  "name": "stepstyle-ecommerce",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tienda virtual acad\u00e9mica StepStyle con frontend, API REST y SQLite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check js/auth.js && node --check js/checkout.js && node --check js/admin.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.7.0",
+    "connect-sqlite3": "^0.9.13",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "helmet": "^8.0.0",
+    "dotenv": "^16.4.7"
+  }
+}

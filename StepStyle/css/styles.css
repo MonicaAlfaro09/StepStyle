@@ -284,3 +284,6 @@ body {
     margin-bottom: 24px;
   }
 }
+
+/* Ajustes añadidos para la entrega integradora */
+.terms-accept{display:flex;align-items:flex-start;gap:9px;line-height:1.5;margin:18px 0;font-size:13px}.terms-accept input{margin-top:3px;flex:0 0 auto}.terms-accept a{text-decoration:underline;color:var(--purple-deep)}button:disabled{opacity:.55;cursor:not-allowed}
