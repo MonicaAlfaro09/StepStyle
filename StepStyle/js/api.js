@@ -1,5 +1,5 @@
 // URL pública del backend en Render. Si Render asigna otra URL, cámbiala solo aquí.
-const STEPSTYLE_REMOTE_API='https://stepstyle-api.onrender.com';
+const STEPSTYLE_REMOTE_API='https://stepstyle-api-i381.onrender.com';
 // En GitHub Pages se usa la API remota; en local (python3 backend/server.py) se usa el mismo servidor.
 const STEPSTYLE_API_BASE=(location.hostname.endsWith('github.io')||location.protocol==='file:'?STEPSTYLE_REMOTE_API:'')+'/api';
 

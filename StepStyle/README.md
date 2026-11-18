@@ -31,7 +31,7 @@ En Windows PowerShell, utilizar `$env:STEPSTYLE_ADMIN_EMAIL=...` y `$env:STEPSTY
    - `DATABASE_URL`: la cadena de Neon (solo aquí, **nunca** en el repositorio).
    - `STEPSTYLE_ADMIN_EMAIL` y `STEPSTYLE_ADMIN_PASSWORD` (12+ caracteres): cuenta admin inicial.
 3. Al arrancar, el servidor aplica las migraciones de `backend/migrations/` y carga los 15 productos semilla.
-4. Verificar `https://stepstyle-api.onrender.com/api/health` → `{"ok": true, "db": "postgresql"}`.
+4. Verificar `https://stepstyle-api-i381.onrender.com/api/health` → `{"ok": true, "db": "postgresql"}`.
 5. Si Render asigna otra URL, cambiar `STEPSTYLE_REMOTE_API` en `js/api.js`.
 
 El plan gratuito de Render suspende el servicio tras ~15 min sin uso; la primera petición puede tardar cerca de un minuto.
