@@ -1,0 +1,23 @@
+# Blueprint de Render para el backend de StepStyle (plan gratuito).
+# La cadena de conexión de Neon y la cuenta admin se capturan en el panel de Render (sync: false),
+# nunca en este archivo.
+services:
+  - type: web
+    name: stepstyle-api
+    runtime: python
+    plan: free
+    rootDir: StepStyle
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: python backend/server.py
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: ALLOWED_ORIGINS
+        value: https://monicaalfaro09.github.io
+      - key: DATABASE_URL
+        sync: false
+      - key: STEPSTYLE_ADMIN_EMAIL
+        sync: false
+      - key: STEPSTYLE_ADMIN_PASSWORD
+        sync: false

@@ -1,0 +1,6 @@
+backend/*.sqlite3
+backend/*.sqlite3-*
+backups/
+.env
+__pycache__/
+*.pyc
