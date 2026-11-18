@@ -6,6 +6,7 @@ services:
     name: stepstyle-api
     runtime: python
     plan: free
+    region: ohio   # misma región que Neon (AWS US East 2)
     rootDir: StepStyle
     buildCommand: pip install -r backend/requirements.txt
     startCommand: python backend/server.py
