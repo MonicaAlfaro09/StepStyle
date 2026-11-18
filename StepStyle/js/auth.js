@@ -1,0 +1,17 @@
+document.addEventListener('DOMContentLoaded',()=>{
+ const mode=document.body.dataset.auth,card=document.getElementById('authCard');
+ const error=e=>{document.getElementById('authError').textContent=e.message||e};
+ if(mode==='signup'){
+ card.innerHTML=`<h1>Crea tu cuenta</h1><form id="signupForm" class="form-stack"><label>Nombre<input name="name" required minlength="2"></label><label>Correo<input name="email" type="email" required></label><label>Contraseña<input name="password" type="password" required minlength="10"></label><label>Confirmar contraseña<input name="confirm" type="password" required minlength="10"></label><div id="authError" class="form-error"></div><button class="button button-dark">Crear cuenta</button></form><p><a href="login.html">Inicia sesión</a></p>`;
+ document.getElementById('signupForm').onsubmit=async e=>{e.preventDefault();const f=e.target;if(f.password.value!==f.confirm.value)return error('Las contraseñas no coinciden');try{await StepAPI.call('/auth/register','POST',{name:f.name.value,email:f.email.value,password:f.password.value});await StepAPI.login(f.email.value,f.password.value);location.href='perfil.html'}catch(x){error(x)}};
+ }else if(mode==='login'){
+ card.innerHTML=`<h1>Iniciar sesión</h1><form id="loginForm" class="form-stack"><label>Correo<input name="email" type="email" required></label><label>Contraseña<input name="password" type="password" required></label><div id="authError" class="form-error"></div><button class="button button-dark">Entrar</button></form><p><a href="registro.html">Crear cuenta</a></p>`;
+ document.getElementById('loginForm').onsubmit=async e=>{e.preventDefault();const f=e.target;try{await StepAPI.login(f.email.value,f.password.value);const next=sessionStorage.getItem('stepstyle_redirect')||'perfil.html';sessionStorage.removeItem('stepstyle_redirect');location.href=next}catch(x){error(x)}};
+ }else{
+ if(!StepAPI.token()){location.href='login.html';return}
+ card.classList.add('profile-card');card.innerHTML='<h1>Mi cuenta</h1><div id="profileOrders"></div><h2>Solicitar devolución</h2><form id="returnForm" class="form-stack"><label>ID de pedido<input name="order_id" type="number" required min="1"></label><label>Motivo<textarea name="reason" required minlength="8"></textarea></label><button class="button button-dark">Enviar solicitud</button></form><div id="returnResult"></div><button id="profileLogout" class="text-button">Cerrar sesión</button>';
+ const render=async()=>{try{const u=await StepAPI.call('/me'),orders=await StepAPI.call('/orders'),returns=await StepAPI.call('/returns');document.getElementById('profileOrders').innerHTML=`<p>${u.name} · ${u.email}</p><h2>Pedidos</h2>`+orders.map(o=>`<div class="order-row">#${o.id} · ${o.folio} · ${o.status} · ${StepStyle.money(o.total_cents/100)}</div>`).join('')+'<h2>Devoluciones</h2>'+returns.map(r=>`<p>#${r.id}: ${r.status}</p>`).join('')}catch(x){document.getElementById('profileOrders').textContent=x.message}};render();
+ document.getElementById('returnForm').onsubmit=async e=>{e.preventDefault();const f=e.target;try{await StepAPI.call('/returns','POST',{order_id:Number(f.order_id.value),reason:f.reason.value});document.getElementById('returnResult').textContent='Solicitud registrada';render()}catch(x){document.getElementById('returnResult').textContent=x.message}};
+ document.getElementById('profileLogout').onclick=()=>{StepAPI.logout();location.href='index.html'};
+ }
+});

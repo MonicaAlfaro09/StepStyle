@@ -1,0 +1,13 @@
+document.addEventListener('DOMContentLoaded',()=>{
+ const err=document.getElementById('adminError');const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ async function render(){try{const [u,p,o,r,report]=await Promise.all(['/me','/admin/products','/admin/orders','/admin/returns','/admin/reports'].map(x=>StepAPI.call(x)));if(u.role!=='admin')throw Error('Sin permisos');
+ document.getElementById('reports').textContent=`Pedidos: ${report.orders} · Ventas: ${StepStyle.money(report.sales_cents/100)} · Stock bajo: ${report.low_stock} · Devoluciones: ${report.returns}`;
+ document.getElementById('adminProducts').innerHTML=p.map(x=>`<div class="order-row">${safe(x.id)} · ${safe(x.name)} · ${StepStyle.money(x.price_cents/100)} · Stock: ${x.stock} <button data-product="${safe(x.id)}">Editar</button></div>`).join('');
+ document.getElementById('adminOrders').innerHTML=o.map(x=>`<div class="order-row">#${x.id} ${safe(x.folio)} · ${safe(x.status)} · ${StepStyle.money(x.total_cents/100)} <select data-order="${x.id}"><option value="">Cambiar estado</option>${['preparando','enviado','entregado','cancelado'].map(y=>`<option>${y}</option>`).join('')}</select></div>`).join('');
+ document.getElementById('adminReturns').innerHTML=r.map(x=>`<div class="order-row">#${x.id} · ${safe(x.reason)} · ${safe(x.status)} ${x.status==='solicitada'?`<button data-return="${x.id}" data-status="aprobada">Aprobar</button><button data-return="${x.id}" data-status="rechazada">Rechazar</button>`:''}</div>`).join('');
+ err.textContent='';
+ }catch(e){err.textContent=e.message}}
+ document.getElementById('newProduct').onsubmit=async e=>{e.preventDefault();const f=e.target;try{await StepAPI.call('/admin/products','POST',{id:f.id.value,name:f.name.value,category:f.category.value,price_cents:Math.round(Number(f.price.value)*100),stock:Number(f.stock.value)});f.reset();render()}catch(x){err.textContent=x.message}};
+ document.body.addEventListener('click',async e=>{const b=e.target.closest('[data-product],[data-return]');if(!b)return;try{if(b.dataset.product){const stock=prompt('Nueva existencia');if(stock===null)return;await StepAPI.call('/admin/products/'+b.dataset.product,'PATCH',{stock:Number(stock)})}else await StepAPI.call('/admin/returns/'+b.dataset.return,'PATCH',{status:b.dataset.status});render()}catch(x){err.textContent=x.message}});
+ document.body.addEventListener('change',async e=>{const b=e.target.closest('[data-order]');if(!b||!b.value)return;try{await StepAPI.call('/admin/orders/'+b.dataset.order,'PATCH',{status:b.value});render()}catch(x){err.textContent=x.message}});render();
+});
