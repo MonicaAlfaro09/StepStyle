@@ -146,7 +146,7 @@ def seed(c):
             c.execute('INSERT INTO products(id,name,category,price_cents,discount,stock,metadata) VALUES(?,?,?,?,?,?,?)',
                       (p['id'], p['name'], p['category'], round(p['price'] * 100), p.get('discount', 0), p['stock'], json.dumps(p, ensure_ascii=False)))
         log.info('Productos semilla cargados')
-    if c.one('SELECT COUNT(*) AS n FROM coupons')['n'] == 0:
+    if not c.one('SELECT code FROM coupons WHERE code=?', ('STEP10',)):
         c.execute('INSERT INTO coupons(code,percent) VALUES(?,?)', ('STEP10', 10))
     if c.one('SELECT COUNT(*) AS n FROM users WHERE role=?', ('admin',))['n'] == 0:
         email = os.environ.get('STEPSTYLE_ADMIN_EMAIL'); password = os.environ.get('STEPSTYLE_ADMIN_PASSWORD')
@@ -294,7 +294,7 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.reply(200, [row(x) for x in c.all('SELECT * FROM returns WHERE user_id=? ORDER BY id DESC', (u['id'],))])
                 if path == '/api/admin/orders':
                     self.require(c, True)
-                    return self.reply(200, [row(x) for x in c.all('SELECT * FROM orders ORDER BY id DESC')])
+                    return self.reply(200, [dict(row(x), customer_name=x['customer_name'], customer_email=x['customer_email']) for x in c.all('SELECT o.*,u.name AS customer_name,u.email AS customer_email FROM orders o JOIN users u ON u.id=o.user_id ORDER BY o.id DESC')])
                 m = re.fullmatch(r'/api/admin/orders/(\d+)', path)
                 if m:
                     self.require(c, True)
@@ -308,7 +308,7 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.reply(200, [row(x) for x in c.all('SELECT id,name,category,price_cents,discount,stock,active FROM products ORDER BY id')])
                 if path == '/api/admin/returns':
                     self.require(c, True)
-                    return self.reply(200, [row(x) for x in c.all('SELECT * FROM returns ORDER BY id DESC')])
+                    return self.reply(200, [dict(row(x), customer_name=x['customer_name'], customer_email=x['customer_email'], folio=x['folio']) for x in c.all('SELECT r.*,u.name AS customer_name,u.email AS customer_email,o.folio FROM returns r JOIN users u ON u.id=r.user_id JOIN orders o ON o.id=r.order_id ORDER BY r.id DESC')])
                 if path == '/api/admin/inventory':
                     self.require(c, True)
                     return self.reply(200, [row(x) for x in c.all('SELECT * FROM inventory_movements ORDER BY id DESC LIMIT 200')])
@@ -416,8 +416,8 @@ class Handler(SimpleHTTPRequestHandler):
         ship = d.get('shipping', {}); required = ['name', 'email', 'address', 'city', 'state', 'zip', 'phone']
         if not isinstance(ship, dict) or any(not str(ship.get(x, '')).strip() for x in required) or not re.fullmatch(r'\d{5}', str(ship.get('zip', ''))):
             raise ValueError('Datos de entrega incompletos')
-        ship = {x: str(ship.get(x, '')).strip()[:200] for x in required}
-        if d.get('payment') not in ('Simulado', 'Transferencia', 'Tarjeta'):
+        ship = {x: str(ship.get(x, '')).strip()[:200] for x in required}; ship['country'] = str(ship.get('country', 'México')).strip()[:80] or 'México'
+        if d.get('payment') != 'Tarjeta':
             raise ValueError('Método de pago inválido')
         with (nullcontext() if PG else LOCK):
             with db() as c:
@@ -449,8 +449,22 @@ class Handler(SimpleHTTPRequestHandler):
                     if not cp:
                         raise ValueError('Cupón inválido')
                     discount = (subtotal * cp['percent'] + 50) // 100
-                base = subtotal - discount; tax = (base * 16 + 50) // 100
-                delivery = 0 if subtotal >= 250000 else 14900
+                base = subtotal - discount
+                country = ship.get('country', 'México').lower()
+                city = ship.get('city', '').strip().lower()
+                state = ship.get('state', '').strip().lower()
+                border_cities = {'nuevo laredo','reynosa','matamoros','rio bravo','miguel aleman','camargo','guerrero'}
+                border = country == 'méxico' and (any(x in city for x in border_cities) or (state in {'baja california','sonora'} and any(x in city for x in ('san luis rio colorado','nogales','agua prieta','naco','cananea'))))
+                tax_rate = 0 if country != 'méxico' else (8 if border else 16)
+                tax = (base * tax_rate + 50) // 100
+                if country != 'méxico':
+                    delivery = 49900
+                elif state == 'tamaulipas':
+                    delivery = 9900
+                else:
+                    delivery = 14900
+                if country == 'méxico' and subtotal >= 250000:
+                    delivery = 0
                 total = base + tax + delivery; folio = 'ST-' + secrets.token_hex(5).upper(); ts = now()
                 oid = c.insert('INSERT INTO orders(folio,user_id,created_at,shipping,subtotal_cents,tax_cents,shipping_cents,total_cents,coupon,terms_version,terms_accepted_at,idempotency_key) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',
                                (folio, u['id'], ts, json.dumps(ship, ensure_ascii=False), subtotal, tax, delivery, total, coupon or None, '1.0', ts, key))

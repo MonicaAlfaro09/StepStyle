@@ -47,11 +47,12 @@ tok = d['token']
 s, d, _ = call('/me', token=tok); check('/me', s == 200 and d['email'] == email, d)
 s, d, _ = call('/admin/orders', token=tok); check('cliente bloqueado en admin', s == 403, d)
 
-ship = {'name': 'Cliente Prueba', 'email': email, 'address': 'Calle 1', 'city': 'Nuevo Laredo', 'state': 'Tamaulipas', 'zip': '88000', 'phone': '8670000000'}
+ship = {'name': 'Cliente Prueba', 'email': email, 'address': 'Calle 1', 'city': 'Nuevo Laredo', 'state': 'Tamaulipas', 'zip': '88000', 'phone': '8670000000', 'country': 'México'}
 key = uuid.uuid4().hex
-order = {'items': [{'id': pid, 'quantity': 1}], 'shipping': ship, 'payment': 'Simulado', 'accept_terms': True, 'coupon': 'STEP10', 'idempotency_key': key}
+order = {'items': [{'id': pid, 'quantity': 1}], 'shipping': ship, 'payment': 'Tarjeta', 'accept_terms': True, 'coupon': 'STEP10', 'idempotency_key': key}
 s, d, _ = call('/orders', 'POST', dict(order, accept_terms=False), token=tok); check('pedido sin aceptar términos rechazado', s == 400, d)
 s, o1, _ = call('/orders', 'POST', order, token=tok); check('compra con cupón', s == 201 and o1.get('folio', '').startswith('ST-'), o1)
+check('IVA fronterizo estimado 8%', s == 201 and o1.get('tax', 0) > 0 and o1.get('tax', 0) < o1.get('subtotal', 0) * .10, o1)
 s, o2, _ = call('/orders', 'POST', order, token=tok); check('idempotencia (mismo folio)', s == 200 and o2.get('folio') == o1.get('folio'), o2)
 s, after, _ = call('/products'); stock_after = next(x['stock'] for x in after if x['id'] == pid)
 check('stock descontado', stock_after == p['stock'] - 1, (p['stock'], stock_after))
@@ -67,10 +68,15 @@ s, d, _ = call(f'/admin/orders/{oid}', 'PATCH', {'status': 'entregado'}, token=a
 s, d, _ = call(f'/admin/orders/{oid}', 'PATCH', {'status': 'preparando'}, token=adm); check('pedido -> preparando', s == 200, d)
 s, d, _ = call(f'/admin/orders/{oid}', 'PATCH', {'status': 'cancelado'}, token=adm); check('pedido -> cancelado', s == 200, d)
 s, after, _ = call('/products'); check('stock repuesto al cancelar', next(x['stock'] for x in after if x['id'] == pid) == p['stock'], '')
+s, d, _ = call(f'/admin/products/{pid}', 'PATCH', {'stock': 1}, token=adm); check('admin deja una pieza en inventario', s == 200, d)
+s, d, _ = call('/orders', 'POST', dict(order, items=[{'id': pid, 'quantity': 2}], idempotency_key=uuid.uuid4().hex), token=tok)
+check('cliente que intenta comprar dos con una disponible recibe inventario insuficiente', s == 400 and 'Inventario insuficiente' in d.get('error', ''), d)
+s, d, _ = call(f'/admin/products/{pid}', 'PATCH', {'stock': p['stock']}, token=adm); check('admin restaura stock de prueba', s == 200, d)
 
 s, d, _ = call('/returns', 'POST', {'order_id': oid, 'reason': 'La talla no me quedó'}, token=tok); check('solicitar devolución', s == 201, d)
 rid = d.get('id')
 s, d, _ = call('/returns', 'POST', {'order_id': oid, 'reason': 'La talla no me quedó'}, token=tok); check('devolución duplicada rechazada', s == 400, d)
+s, admin_returns, _ = call('/admin/returns', token=adm); check('admin ve motivo y cliente de devolución', s == 200 and any(x.get('id') == rid and x.get('reason') == 'La talla no me quedó' and x.get('customer_name') == 'Cliente Prueba' for x in admin_returns), admin_returns)
 s, d, _ = call(f'/admin/returns/{rid}', 'PATCH', {'status': 'aprobada'}, token=adm); check('admin aprueba devolución', s == 200, d)
 
 sku = 'T-' + uuid.uuid4().hex[:6].upper()

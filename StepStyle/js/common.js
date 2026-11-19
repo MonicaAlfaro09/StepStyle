@@ -53,7 +53,7 @@ window.StepStyle = (() => {
   function toggleWishlist(id){let w=wishlist();if(w.includes(id)){w=w.filter(x=>x!==id);toast("Producto eliminado de favoritos")}else{w.push(id);toast("Producto guardado en favoritos")}write(KEYS.wishlist,w);return w.includes(id)}
   function requireLogin(){if(!session()){sessionStorage.setItem("stepstyle_redirect","checkout.html");location.href="login.html?required=1";return false}return true}
   function shippingByZip(zip,sub){if(sub>=2500)return 0;if(!/^\d{5}$/.test(zip))return null;const n=Number(zip);if(n>=88000&&n<=88999)return 99;if((n>=64000&&n<=64999)||(n>=44000&&n<=44999))return 129;return 169}
-  function coupon(code,sub){const normalized=(code||"").trim().toUpperCase();if(normalized==="PROFE100")return {code:normalized,label:"$100 de descuento",amount:Math.min(100,sub)};if(normalized==="STEP20")return {code:normalized,label:"20% de descuento",amount:sub*.20};return null}
+  function coupon(code,sub){const normalized=(code||"").trim().toUpperCase();if(normalized==="STEP10")return {code:normalized,label:"10% de descuento",amount:Math.round(sub*.10*100)/100};if(normalized==="PROFE100")return {code:normalized,label:"$100 de descuento",amount:Math.min(100,sub)};if(normalized==="STEP20")return {code:normalized,label:"20% de descuento",amount:sub*.20};return null}
   return {KEYS,icons,read,write,product,money,price,cart,wishlist,session,subtotal,toast,initLayout,updateCounters,addCart,setCart,toggleWishlist,requireLogin,shippingByZip,coupon};
 })();
 document.addEventListener("DOMContentLoaded",()=>StepStyle.initLayout());
