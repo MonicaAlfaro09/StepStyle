@@ -148,13 +148,22 @@ def seed(c):
         log.info('Productos semilla cargados')
     if not c.one('SELECT code FROM coupons WHERE code=?', ('STEP10',)):
         c.execute('INSERT INTO coupons(code,percent) VALUES(?,?)', ('STEP10', 10))
-    if c.one('SELECT COUNT(*) AS n FROM users WHERE role=?', ('admin',))['n'] == 0:
-        email = os.environ.get('STEPSTYLE_ADMIN_EMAIL'); password = os.environ.get('STEPSTYLE_ADMIN_PASSWORD')
-        if email and password and len(password) >= 12:
-            c.execute('INSERT INTO users(name,email,password_hash,role) VALUES(?,?,?,?)', ('Administrador', email.strip().lower(), pw_hash(password), 'admin'))
-            log.info('Cuenta administradora creada')
+    # Sincroniza la cuenta administradora con las variables de entorno en cada
+    # arranque. Así se pueden corregir credenciales existentes sin borrar la BD.
+    email = os.environ.get('STEPSTYLE_ADMIN_EMAIL', '').strip().lower()
+    password = os.environ.get('STEPSTYLE_ADMIN_PASSWORD', '')
+    if email and password and len(password) >= 12:
+        current_admin = c.one('SELECT id FROM users WHERE role=? ORDER BY id LIMIT 1', ('admin',))
+        if current_admin:
+            c.execute('UPDATE users SET name=?,email=?,password_hash=? WHERE id=?',
+                      ('Administrador', email, pw_hash(password), current_admin['id']))
+            log.info('Credenciales de administrador sincronizadas desde el entorno')
         else:
-            log.warning('No hay administrador: define STEPSTYLE_ADMIN_EMAIL y STEPSTYLE_ADMIN_PASSWORD (12+ caracteres)')
+            c.execute('INSERT INTO users(name,email,password_hash,role) VALUES(?,?,?,?)',
+                      ('Administrador', email, pw_hash(password), 'admin'))
+            log.info('Cuenta administradora creada')
+    else:
+        log.warning('Administrador sin sincronizar: configura STEPSTYLE_ADMIN_EMAIL y STEPSTYLE_ADMIN_PASSWORD (12+ caracteres)')
 
 
 # ---------------------------------------------------------------- seguridad

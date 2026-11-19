@@ -1,1 +1,28 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administración | StepStyle</title><link rel="stylesheet" href="css/styles.css"></head><body><div id="siteHeader"></div><main id="adminContent" class="shell admin-page" style="padding:40px 0;display:none"><h1>Administración</h1><p id="adminError" role="alert"></p><section id="reports"></section><h2>Inventario</h2><div id="adminProducts"></div><h3>Nuevo producto</h3><form id="newProduct" class="form-stack"><label>SKU<input name="id" required></label><label>Nombre<input name="name" required></label><label>Categoría<input name="category" required></label><label>Precio MXN<input name="price" type="number" min="0" step=".01" required></label><label>Existencia<input name="stock" type="number" min="0" required></label><button class="button button-dark">Agregar</button></form><h2>Pedidos</h2><div id="adminOrders"></div><h2>Devoluciones</h2><div id="adminReturns"></div></main><main id="adminDenied" class="shell admin-denied" style="display:none"><h1>Sin permisos</h1><p>Esta sección está disponible únicamente para cuentas administradoras.</p><a class="button button-dark" href="index.html">Volver a la tienda</a></main><div id="siteFooter"></div><script src="js/products.js"></script><script src="js/common.js"></script><script src="js/api.js"></script><script src="js/admin.js"></script></body></html>
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Acceso administrador | StepStyle</title><link rel="stylesheet" href="css/styles.css"></head>
+<body>
+<div id="siteHeader"></div>
+<main class="shell admin-page" style="padding:40px 0;min-height:65vh">
+  <section id="adminLogin" class="profile-card" style="max-width:480px;margin:30px auto">
+    <h1>Administración StepStyle</h1>
+    <p>Ingresa con la cuenta administradora para continuar.</p>
+    <form id="adminLoginForm" class="form-stack">
+      <label>Correo electrónico<input name="email" type="email" autocomplete="username" required></label>
+      <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
+      <p id="loginError" class="form-error" role="alert"></p>
+      <button class="button button-dark" type="submit">Entrar a administración</button>
+    </form>
+    <p><a href="index.html">Volver a la tienda</a></p>
+  </section>
+  <section id="adminContent" style="display:none">
+    <h1>Panel de administración</h1><p id="adminError" role="alert"></p>
+    <button id="adminLogout" class="button button-outline compact" type="button">Cerrar sesión</button>
+    <section id="reports"></section><h2>Inventario</h2><div id="adminProducts"></div>
+    <h3>Nuevo producto</h3><form id="newProduct" class="form-stack"><label>SKU<input name="id" required></label><label>Nombre<input name="name" required></label><label>Categoría<input name="category" required></label><label>Precio MXN<input name="price" type="number" min="0" step=".01" required></label><label>Existencia<input name="stock" type="number" min="0" required></label><button class="button button-dark">Agregar</button></form>
+    <h2>Pedidos</h2><div id="adminOrders"></div><h2>Devoluciones</h2><div id="adminReturns"></div>
+  </section>
+</main>
+<div id="siteFooter"></div>
+<script src="js/products.js"></script><script src="js/common.js"></script><script src="js/api.js"></script><script src="js/admin.js"></script>
+</body></html>

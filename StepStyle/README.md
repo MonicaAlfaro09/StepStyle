@@ -64,3 +64,14 @@ Autenticación con token temporal (8 h) guardado como hash en la tabla `sessions
 ## Alcance
 
 Pago simulado: nunca se envían datos de tarjeta al backend. No hay integración CFDI. Proyecto académico: no usar con datos personales ni pagos reales.
+
+## Acceso al panel de administración
+
+El panel está en la página independiente `admin.html`. Para habilitar la cuenta administradora en Render, configura estas variables en **Environment**:
+
+- `STEPSTYLE_ADMIN_EMAIL`: correo de acceso del administrador.
+- `STEPSTYLE_ADMIN_PASSWORD`: contraseña del administrador (mínimo 12 caracteres).
+
+Al iniciar el backend, las credenciales configuradas se sincronizan con la cuenta administradora existente; no es necesario borrar la base de datos. Después de guardar las variables, Render debe desplegar/reiniciar el servicio. Abre `https://monicaalfaro09.github.io/StepStyle/admin.html` e inicia sesión. La API conserva la validación de rol administrador; conocer la dirección de la página no concede acceso.
+
+No publiques las credenciales en GitHub ni las escribas en archivos JavaScript o HTML.
