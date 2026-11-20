@@ -496,7 +496,16 @@ class Handler(SimpleHTTPRequestHandler):
                 raise ValueError('Producto inválido')
             if c.one('SELECT id FROM products WHERE id=?', (pid,)):
                 raise ValueError('Ya existe un producto con ese SKU')
-            m = {'id': pid, 'name': name, 'category': cat, 'brand': 'StepStyle', 'gender': 'Unisex', 'style': 'Casual', 'price': price / 100, 'discount': 0, 'stock': stock, 'image': '', 'sizes': [25, 26, 27], 'colors': ['Negro'], 'description': '', 'specs': []}
+            image = str(d.get('image', '')).strip()[:1000]
+            if not image.startswith(('https://', 'http://')):
+                raise ValueError('Agrega una URL de imagen válida para publicar el producto')
+            brand = str(d.get('brand', 'StepStyle')).strip()[:80] or 'StepStyle'
+            gender = str(d.get('gender', 'Unisex')).strip()[:20] or 'Unisex'
+            style = str(d.get('style', 'Casual')).strip()[:50] or 'Casual'
+            description = str(d.get('description', '')).strip()[:1000]
+            sizes = d.get('sizes') if isinstance(d.get('sizes'), list) else [25, 26, 27]
+            colors = d.get('colors') if isinstance(d.get('colors'), list) else ['Negro']
+            m = {'id': pid, 'name': name, 'category': cat, 'brand': brand, 'gender': gender, 'style': style, 'price': price / 100, 'discount': 0, 'stock': stock, 'image': image, 'sizes': sizes[:30], 'colors': colors[:20], 'description': description, 'specs': []}
             c.execute('INSERT INTO products(id,name,category,price_cents,stock,metadata) VALUES(?,?,?,?,?,?)', (pid, name, cat, price, stock, json.dumps(m, ensure_ascii=False)))
             if stock:
                 c.execute('INSERT INTO inventory_movements(product_id,quantity,reason,actor_id,created_at) VALUES(?,?,?,?,?)', (pid, stock, 'alta', u['id'], now()))
