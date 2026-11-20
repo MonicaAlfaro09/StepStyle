@@ -2,6 +2,11 @@
 <html lang="es">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>StepStyle</title><link rel="stylesheet" href="css/styles.css">  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="shortcut icon" href="favicon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#171a2b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="StepStyle">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
 <div id="siteHeader"></div>
@@ -28,9 +33,7 @@
       <label>Categoría<input name="category" placeholder="Tenis, Botines, Sandalias..." required></label>
       <label>Género<select name="gender"><option>Unisex</option><option>Hombre</option><option>Mujer</option></select></label>
       <label>Estilo<input name="style" value="Casual" required></label>
-      <label>Precio (MXN)
-  <input name="price" type="number" min="0.01" max="999999.99" step="0.01" required>
-</label>
+      <label>Precio (MXN)<input name="price" type="number" min="0.01" step="0.01" required></label>
       <label>Existencias iniciales<input name="stock" type="number" min="0" step="1" required></label>
       <label>URL de imagen del producto<input name="image" type="url" placeholder="https://..." required></label>
       <label>Descripción<textarea name="description" rows="3"></textarea></label>
@@ -38,12 +41,12 @@
       <label>Colores (separados por coma)<input name="colors" value="Negro"></label>
       <button class="button button-dark" type="submit">Guardar y publicar producto</button>
     </form>
-    <h2>Inventario y productos publicados</h2><div id="adminProducts"></div>
+    <h2>Inventario y productos publicados</h2><div id="adminProducts"></div><section id="productEditor" class="admin-record product-editor" hidden aria-live="polite"><div class="editor-heading"><div><p class="kicker">EDICIÓN DE CATÁLOGO</p><h3 id="productEditorTitle">Editar producto</h3><p>Actualiza el precio, las existencias y el descuento.</p></div><button type="button" id="closeProductEditor" class="button button-outline compact">Cerrar</button></div><form id="productEditForm" class="form-stack editor-grid"><label>Precio (MXN)<input name="price" type="number" min="0.01" max="999999.99" step="0.01" required></label><label>Existencias<input name="stock" type="number" min="0" step="1" required></label><label>Descuento (%)<input name="discount" type="number" min="0" max="100" step="1" required><small>Escribe 0 si el producto no tiene descuento.</small></label><div class="editor-actions"><button class="button button-dark" type="submit">Guardar cambios</button><button class="button button-outline" type="button" id="cancelProductEditor">Cancelar</button></div></form></section>
     <h2>Movimientos de inventario</h2><div id="adminInventory"></div>
     <h2>Pedidos registrados</h2><div id="adminOrders"></div>
     <h2>Solicitudes de devolución</h2><div id="adminReturns"></div>
-    <h2> Registro de actividades administrativas</h2>
-  
+    <h2>7.7 Registro de actividades administrativas</h2>
+    <p>El sistema incorpora un registro de actividades que permite consultar acciones realizadas por los administradores. Esta información se almacena en la tabla <strong>audit_logs</strong> e identifica al usuario, la operación, el elemento afectado, su identificador y la fecha de ejecución.</p>
     <div id="adminAudit"></div>
   </section>
 </main>
